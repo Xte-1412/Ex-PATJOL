@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-enum class AppScreen { Splash, Onboarding, SystemModeSelection, UserModeSelection, MainApp }
+enum class AppScreen { Splash, Onboarding, SystemModeSelection, UserModeSelection, SenderModeTrial, ReceiverModeTrial, DefaultAppModeTrial, SpamMessagesTrial, MainApp }
 
 @Composable
 fun MainScreen() {
@@ -47,15 +47,37 @@ fun MainScreen() {
             onModeSelected = { mode ->
                 if (mode == "Mode Trial") {
                     currentScreen = AppScreen.UserModeSelection
+                } else if (mode == "Set Default App") {
+                    currentScreen = AppScreen.DefaultAppModeTrial
                 } else {
                     currentScreen = AppScreen.MainApp
                 }
             }
         )
+        AppScreen.DefaultAppModeTrial -> DefaultAppModeTrialScreen(
+            onHome = { currentScreen = AppScreen.SystemModeSelection }
+        )
         AppScreen.UserModeSelection -> UserModeSelectionScreen(
             onModeSelected = { userMode ->
-                currentScreen = AppScreen.MainApp
+                if (userMode == "Pengirim Pesan") {
+                    currentScreen = AppScreen.SenderModeTrial
+                } else if (userMode == "Penerima Pesan") {
+                    currentScreen = AppScreen.ReceiverModeTrial
+                } else {
+                    currentScreen = AppScreen.MainApp
+                }
             }
+        )
+        AppScreen.ReceiverModeTrial -> ReceiverModeTrialScreen(
+            onBack = { currentScreen = AppScreen.UserModeSelection },
+            onWaspadaClick = { currentScreen = AppScreen.SpamMessagesTrial }
+        )
+        AppScreen.SpamMessagesTrial -> SpamMessagesTrialScreen(
+            onHome = { currentScreen = AppScreen.ReceiverModeTrial }
+        )
+        AppScreen.SenderModeTrial -> SenderModeTrialScreen(
+            onExit = { currentScreen = AppScreen.Splash }, // Go back to start or whatever is appropriate
+            onHome = { currentScreen = AppScreen.UserModeSelection } // "Kembali ke beranda" -> User selection
         )
         AppScreen.MainApp -> {
             // Placeholder for the next screen after onboarding and selection
