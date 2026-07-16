@@ -28,6 +28,8 @@ enum class DefaultAppScanState { INITIAL, TOOLTIP, SCANNING, SUCCESS, FILTERED }
 
 @Composable
 fun DefaultAppModeTrialScreen(
+    currentScreen: AppScreen,
+    onNavigate: (AppScreen) -> Unit,
     onHome: () -> Unit
 ) {
     var state by remember { mutableStateOf(DefaultAppScanState.INITIAL) }
@@ -139,7 +141,11 @@ fun DefaultAppModeTrialScreen(
             }
         }
 
-        CustomBottomNav(modifier = Modifier.align(Alignment.BottomCenter))
+        SharedBottomNav(
+            currentScreen = currentScreen,
+            onNavigate = onNavigate,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
 
         // Overlays based on state
         if (state == DefaultAppScanState.TOOLTIP || state == DefaultAppScanState.SCANNING || state == DefaultAppScanState.SUCCESS) {

@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-enum class AppScreen { Splash, Onboarding, SystemModeSelection, UserModeSelection, SenderModeTrial, ReceiverModeTrial, DefaultAppModeTrial, SpamMessagesTrial, MainApp }
+enum class AppScreen { Splash, Onboarding, SystemModeSelection, UserModeSelection, SenderModeTrial, ReceiverModeTrial, DefaultAppModeTrial, SpamMessagesTrial, StatistikTrial, PengaturanTrial, MainApp }
 
 @Composable
 fun MainScreen() {
@@ -55,6 +55,8 @@ fun MainScreen() {
             }
         )
         AppScreen.DefaultAppModeTrial -> DefaultAppModeTrialScreen(
+            currentScreen = currentScreen,
+            onNavigate = { currentScreen = it },
             onHome = { currentScreen = AppScreen.SystemModeSelection }
         )
         AppScreen.UserModeSelection -> UserModeSelectionScreen(
@@ -69,11 +71,24 @@ fun MainScreen() {
             }
         )
         AppScreen.ReceiverModeTrial -> ReceiverModeTrialScreen(
-            onBack = { currentScreen = AppScreen.UserModeSelection },
-            onWaspadaClick = { currentScreen = AppScreen.SpamMessagesTrial }
+            currentScreen = currentScreen,
+            onNavigate = { currentScreen = it },
+            onBack = { currentScreen = AppScreen.UserModeSelection }
         )
         AppScreen.SpamMessagesTrial -> SpamMessagesTrialScreen(
+            currentScreen = currentScreen,
+            onNavigate = { currentScreen = it },
             onHome = { currentScreen = AppScreen.ReceiverModeTrial }
+        )
+        AppScreen.StatistikTrial -> DummyNavScreen(
+            title = "Statistik",
+            currentScreen = currentScreen,
+            onNavigate = { currentScreen = it }
+        )
+        AppScreen.PengaturanTrial -> DummyNavScreen(
+            title = "Pengaturan",
+            currentScreen = currentScreen,
+            onNavigate = { currentScreen = it }
         )
         AppScreen.SenderModeTrial -> SenderModeTrialScreen(
             onExit = { currentScreen = AppScreen.Splash }, // Go back to start or whatever is appropriate
@@ -294,5 +309,19 @@ fun OnboardingPageContent(page: OnboardingPage) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun DummyNavScreen(title: String, currentScreen: AppScreen, onNavigate: (AppScreen) -> Unit) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.align(Alignment.Center)) {
+            Text(text = "Halaman $title", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = Color.Black)
+        }
+        SharedBottomNav(
+            currentScreen = currentScreen,
+            onNavigate = onNavigate,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }

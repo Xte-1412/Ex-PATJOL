@@ -28,6 +28,8 @@ enum class SpamScreenStep { WARNING, CATEGORY, LIST, TOOLTIP_EYE, TOOLTIP_BANDIN
 
 @Composable
 fun SpamMessagesTrialScreen(
+    currentScreen: AppScreen,
+    onNavigate: (AppScreen) -> Unit,
     onHome: () -> Unit
 ) {
     var step by remember { mutableStateOf(SpamScreenStep.WARNING) }
@@ -83,7 +85,10 @@ fun SpamMessagesTrialScreen(
 
                 // Bottom Nav
                 Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-                    CustomSpamBottomNav()
+                    SharedBottomNav(
+                        currentScreen = currentScreen,
+                        onNavigate = onNavigate
+                    )
                 }
 
                 if (step == SpamScreenStep.WARNING) {
@@ -183,7 +188,12 @@ fun SpamMessagesTrialScreen(
                         }
                     }
                 }
-                Box(modifier = Modifier.align(Alignment.BottomCenter)) { CustomSpamBottomNav() }
+                Box(modifier = Modifier.align(Alignment.BottomCenter)) { 
+                    SharedBottomNav(
+                        currentScreen = currentScreen,
+                        onNavigate = onNavigate
+                    )
+                }
             }
 
             SpamScreenStep.DETAIL, SpamScreenStep.TOOLTIP_EYE, SpamScreenStep.TOOLTIP_BANDING -> {
@@ -276,45 +286,4 @@ fun SpamMessagesTrialScreen(
     }
 }
 
-@Composable
-fun CustomSpamBottomNav() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp)
-            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(72.dp)
-                .clip(RoundedCornerShape(32.dp))
-                .background(Color.Black)
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BottomNavItem(icon = Icons.Outlined.Email, label = "Pesan\nUtama")
-            BottomNavItem(icon = Icons.Outlined.Warning, label = "Pesan\nWaspada", isActive = true)
-            Spacer(modifier = Modifier.width(64.dp))
-            BottomNavItem(icon = Icons.Default.List, label = "Statistik")
-            BottomNavItem(icon = Icons.Outlined.Settings, label = "Pengaturan")
-        }
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.offset(y = (-16).dp)
-        ) {
-            Box(
-                modifier = Modifier.size(64.dp).clip(CircleShape).background(Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(imageVector = Icons.Default.Search, contentDescription = null, modifier = Modifier.size(40.dp), tint = Color.Black)
-                Icon(imageVector = Icons.Outlined.Email, contentDescription = null, modifier = Modifier.size(20.dp), tint = Color.Black)
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Deteksi\nPesan", color = Color.White, fontSize = 10.sp, textAlign = TextAlign.Center, lineHeight = 12.sp, fontWeight = FontWeight.Medium)
-        }
-    }
-}
