@@ -1,4 +1,4 @@
-package com.example.aplikasipatjol
+package com.example.aplikasipatjol.presentation.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,25 +23,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import com.example.aplikasipatjol.domain.model.SmsMessage
+import com.example.aplikasipatjol.presentation.ui.components.SharedBottomNav
+
 
 enum class DefaultAppScanState { INITIAL, TOOLTIP, SCANNING, SUCCESS, FILTERED }
 
 @Composable
 fun DefaultAppModeTrialScreen(
     currentScreen: AppScreen,
+    messages: List<SmsMessage>,
     onNavigate: (AppScreen) -> Unit,
     onHome: () -> Unit
 ) {
     var state by remember { mutableStateOf(DefaultAppScanState.INITIAL) }
     var scanProgress by remember { mutableFloatStateOf(0f) }
 
-    val allMessages = listOf(
-        SmsMessage(id = 1, sender = "Telkomsel", date = "02 Juni 2025", snippet = "PROMO!!, Kuota malam hari cocok buat nonton vtuber sampe ...", fullBody = "", time = ""),
-        SmsMessage(id = 2, sender = "+62123456789", date = "02 Juni 2025", snippet = "Pilih CITI 5i- O75, Terpercaya dan g@j! p0k0k area ter b4ik...", fullBody = "", time = ""),
-        SmsMessage(id = 3, sender = "JasaPinjol", date = "02 Juni 2025", snippet = "100 Juta Rupiah Bisa Untuk Apa Saja! Cairkan Pinjamanmu...", fullBody = "", time = ""),
-        SmsMessage(id = 4, sender = "Telkomsel", date = "02 Juni 2025", snippet = "PROMO!!, Kuota pagi hari cocok buat dengerin channel rohani...", fullBody = "", time = ""),
-        SmsMessage(id = 5, sender = "+6298876654321", date = "02 Juni 2025", snippet = "Cari yg trg Rp y4 L1ON & L! 21 AS b3n4r p4st! 0...", fullBody = "", time = "")
-    )
+    val allMessages = messages
 
     val displayedMessages = if (state == DefaultAppScanState.FILTERED) {
         allMessages.filter { it.sender == "Telkomsel" }

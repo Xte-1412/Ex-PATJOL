@@ -12,17 +12,32 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.aplikasipatjol.data.repository.MockSmsRepositoryImpl
+import com.example.aplikasipatjol.domain.usecase.GetInboxMessagesUseCase
+import com.example.aplikasipatjol.domain.usecase.GetSpamMessagesUseCase
+import com.example.aplikasipatjol.domain.usecase.ScanMessagesUseCase
+import com.example.aplikasipatjol.presentation.ui.screens.MainScreen
+import com.example.aplikasipatjol.presentation.viewmodel.SmsViewModel
+import com.example.aplikasipatjol.presentation.viewmodel.SmsViewModelFactory
 import com.example.aplikasipatjol.ui.theme.AplikasiPATJOLTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val repository = MockSmsRepositoryImpl()
+        val getInboxMessagesUseCase = GetInboxMessagesUseCase(repository)
+        val getSpamMessagesUseCase = GetSpamMessagesUseCase(repository)
+        val scanMessagesUseCase = ScanMessagesUseCase(repository)
+        val factory = SmsViewModelFactory(getInboxMessagesUseCase, getSpamMessagesUseCase, scanMessagesUseCase)
+
         setContent {
+            val viewModel: SmsViewModel = viewModel(factory = factory)
             AplikasiPATJOLTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                        MainScreen()
+                        MainScreen(viewModel)
                     }
                 }
             }

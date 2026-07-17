@@ -1,4 +1,4 @@
-package com.example.aplikasipatjol
+package com.example.aplikasipatjol.presentation.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,27 +23,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import com.example.aplikasipatjol.domain.model.SmsMessage
+import com.example.aplikasipatjol.presentation.ui.components.SharedBottomNav
 enum class SpamScreenStep { WARNING, CATEGORY, LIST, TOOLTIP_EYE, TOOLTIP_BANDING, DETAIL }
 
 @Composable
 fun SpamMessagesTrialScreen(
     currentScreen: AppScreen,
+    messages: List<SmsMessage>,
     onNavigate: (AppScreen) -> Unit,
     onHome: () -> Unit
 ) {
     var step by remember { mutableStateOf(SpamScreenStep.WARNING) }
-
-    val mockSpamMessages = List(3) {
-        SmsMessage(
-            id = it,
-            sender = "+62123456789",
-            date = "02 Juni 2025",
-            snippet = "",
-            fullBody = "AKU KSH KM SA_LDO 200K UTK MA_IN ID BARU 100% PASTI DIKASIH MENANG SISTEM P3C4H, PT BAND MAJW78 MAJIN MAKLUM 5 MENIT WD 2JT DP08LAIM SEKR. **********",
-            time = "10:00 PM"
-        )
-    }
 
     Box(modifier = Modifier.fillMaxSize().background(Color(0xFFC0C0C0))) {
         when (step) {
@@ -158,17 +149,12 @@ fun SpamMessagesTrialScreen(
                             Spacer(modifier = Modifier.width(16.dp))
                             Text("Daftar Pesan Judol", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.Black)
                         }
-                        Box(
-                            modifier = Modifier.background(Color.Black, RoundedCornerShape(16.dp)).padding(horizontal = 16.dp, vertical = 6.dp)
-                        ) {
-                            Text("Laporkan", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        }
                     }
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     LazyColumn(contentPadding = PaddingValues(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(mockSpamMessages) { msg ->
+                        items(messages) { msg ->
                             Box(
                                 modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White).clickable { step = SpamScreenStep.TOOLTIP_EYE }.padding(16.dp)
                             ) {
@@ -197,7 +183,9 @@ fun SpamMessagesTrialScreen(
             }
 
             SpamScreenStep.DETAIL, SpamScreenStep.TOOLTIP_EYE, SpamScreenStep.TOOLTIP_BANDING -> {
-                val message = mockSpamMessages[0]
+                val message = messages.firstOrNull() ?: SmsMessage(
+                    id = 0, sender = "Unknown", date = "", snippet = "", fullBody = "Message not found", time = ""
+                )
                 
                 Column(modifier = Modifier.fillMaxSize().padding(bottom = 100.dp)) {
                     // Top Bar
@@ -240,7 +228,7 @@ fun SpamMessagesTrialScreen(
                     // Footer Text
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(text = "Terdapat kesalahan pada sistem?", fontSize = 12.sp, color = Color.DarkGray)
-                        Text(text = "Kunjungi Aju Banding Pesan", fontSize = 12.sp, color = Color.Black, textDecoration = TextDecoration.Underline)
+                        Text(text = "Kunjungi Aju Banding Pesan", fontSize = 12.sp, color = Color.Black, textDecoration = TextDecoration.Underline, modifier = Modifier.clickable { step = SpamScreenStep.TOOLTIP_BANDING })
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
@@ -252,8 +240,6 @@ fun SpamMessagesTrialScreen(
                         Icon(imageVector = Icons.Outlined.Send, contentDescription = "Send", tint = Color.Black, modifier = Modifier.size(24.dp))
                     }
                 }
-                
-                // Tooltips
                 if (step == SpamScreenStep.TOOLTIP_EYE || step == SpamScreenStep.TOOLTIP_BANDING) {
                     Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.7f)).clickable(enabled = false) {}) {
                         if (step == SpamScreenStep.TOOLTIP_EYE) {
