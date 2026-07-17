@@ -1,4 +1,4 @@
-package com.example.aplikasipatjol
+package com.example.aplikasipatjol.presentation.ui.screens
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
