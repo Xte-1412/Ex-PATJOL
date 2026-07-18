@@ -1,4 +1,4 @@
-package com.example.aplikasipatjol
+package com.example.aplikasipatjol.presentation.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,39 +25,21 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-data class SmsMessage(
-    val id: Int,
-    val sender: String,
-    val date: String,
-    val snippet: String,
-    val fullBody: String,
-    val time: String
-)
-
+import com.example.aplikasipatjol.domain.model.SmsMessage
+import com.example.aplikasipatjol.presentation.ui.components.SharedBottomNav
 @Composable
 fun ReceiverModeTrialScreen(
     currentScreen: AppScreen,
+    messages: List<SmsMessage>,
     onNavigate: (AppScreen) -> Unit,
     onBack: () -> Unit
 ) {
-    val mockMessages = List(5) {
-        SmsMessage(
-            id = it,
-            sender = "Telkomsel",
-            date = "02 Juni 2025",
-            snippet = "PROMO!!, Kuota malam hari cocok buat nonton vtuber sampe ...",
-            fullBody = "PROMO!!, Kuota tak terbatas malam hari cocok buat nonton vtuber sampe subuh. CUMA 5K untuk mendapatkan kuota tak terbatas.\n\nHubungi 911.",
-            time = "10:00 PM"
-        )
-    }
-
     var selectedMessageId by remember { mutableStateOf<Int?>(null) }
     val backgroundColor = Color(0xFFC0C0C0)
 
     if (selectedMessageId == null) {
         MessageListScreen(
-            messages = mockMessages,
+            messages = messages,
             backgroundColor = backgroundColor,
             onMessageClick = { selectedMessageId = it.id },
             currentScreen = currentScreen,
@@ -65,7 +47,7 @@ fun ReceiverModeTrialScreen(
             onBack = onBack
         )
     } else {
-        val message = mockMessages.find { it.id == selectedMessageId }
+        val message = messages.find { it.id == selectedMessageId }
         if (message != null) {
             MessageDetailScreen(
                 message = message,

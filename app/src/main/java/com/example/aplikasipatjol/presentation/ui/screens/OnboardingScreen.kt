@@ -1,5 +1,6 @@
-package com.example.aplikasipatjol
+package com.example.aplikasipatjol.presentation.ui.screens
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -28,12 +29,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.launch
+import com.example.aplikasipatjol.presentation.viewmodel.SmsViewModel
+import com.example.aplikasipatjol.presentation.ui.components.SharedBottomNav
 
 enum class AppScreen { Splash, Onboarding, SystemModeSelection, UserModeSelection, SenderModeTrial, ReceiverModeTrial, DefaultAppModeTrial, SpamMessagesTrial, StatistikTrial, PengaturanTrial, MainApp }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: SmsViewModel? = null) {
     var currentScreen by remember { mutableStateOf(AppScreen.Splash) }
+    
+    val inboxMessages by viewModel?.inboxMessages?.collectAsState(initial = emptyList()) ?: remember { mutableStateOf(emptyList()) }
+    val spamMessages by viewModel?.spamMessages?.collectAsState(initial = emptyList()) ?: remember { mutableStateOf(emptyList()) }
 
     LaunchedEffect(Unit) {
         delay(2500)
@@ -56,6 +63,7 @@ fun MainScreen() {
         )
         AppScreen.DefaultAppModeTrial -> DefaultAppModeTrialScreen(
             currentScreen = currentScreen,
+            messages = inboxMessages,
             onNavigate = { currentScreen = it },
             onHome = { currentScreen = AppScreen.SystemModeSelection }
         )
@@ -72,13 +80,15 @@ fun MainScreen() {
         )
         AppScreen.ReceiverModeTrial -> ReceiverModeTrialScreen(
             currentScreen = currentScreen,
+            messages = inboxMessages,
             onNavigate = { currentScreen = it },
             onBack = { currentScreen = AppScreen.UserModeSelection }
         )
         AppScreen.SpamMessagesTrial -> SpamMessagesTrialScreen(
             currentScreen = currentScreen,
+            messages = spamMessages,
             onNavigate = { currentScreen = it },
-            onHome = { currentScreen = AppScreen.ReceiverModeTrial }
+            onHome = { currentScreen = AppScreen.SystemModeSelection }
         )
         AppScreen.StatistikTrial -> DummyNavScreen(
             title = "Statistik",
