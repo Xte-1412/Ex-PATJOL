@@ -90,15 +90,14 @@ fun MainScreen(viewModel: SmsViewModel? = null) {
             onNavigate = { currentScreen = it },
             onHome = { currentScreen = AppScreen.SystemModeSelection }
         )
-        AppScreen.StatistikTrial -> DummyNavScreen(
-            title = "Statistik",
+        AppScreen.StatistikTrial -> StatistikTrialScreen(
             currentScreen = currentScreen,
             onNavigate = { currentScreen = it }
         )
-        AppScreen.PengaturanTrial -> DummyNavScreen(
-            title = "Pengaturan",
+        AppScreen.PengaturanTrial -> PengaturanTrialScreen(
             currentScreen = currentScreen,
-            onNavigate = { currentScreen = it }
+            onNavigate = { currentScreen = it },
+            onExitTrial = { currentScreen = AppScreen.UserModeSelection }
         )
         AppScreen.SenderModeTrial -> SenderModeTrialScreen(
             onExit = { currentScreen = AppScreen.Splash }, // Go back to start or whatever is appropriate
