@@ -6,8 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -175,7 +175,7 @@ fun SettingMenuItem(title: String, onClick: () -> Unit = {}) {
             color = Color.Black
         )
         Icon(
-            imageVector = Icons.Default.ChevronRight,
+            imageVector = Icons.Default.KeyboardArrowRight,
             contentDescription = null,
             tint = Color.Black
         )
