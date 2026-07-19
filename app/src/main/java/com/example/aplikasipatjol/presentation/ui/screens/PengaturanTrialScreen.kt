@@ -55,7 +55,10 @@ fun PengaturanTrialScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
             ) {
-                SettingMenuItem(title = "Isi Biodata")
+                SettingMenuItem(
+                    title = "Isi Biodata",
+                    onClick = { onNavigate(AppScreen.IsiBiodata) }
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 SettingMenuItem(title = "Tentang Aplikasi")
                 Spacer(modifier = Modifier.height(16.dp))

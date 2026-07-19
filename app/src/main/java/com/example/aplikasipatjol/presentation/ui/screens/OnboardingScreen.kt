@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 import com.example.aplikasipatjol.presentation.viewmodel.SmsViewModel
 import com.example.aplikasipatjol.presentation.ui.components.SharedBottomNav
 
-enum class AppScreen { Splash, Onboarding, SystemModeSelection, UserModeSelection, SenderModeTrial, ReceiverModeTrial, DefaultAppModeTrial, SpamMessagesTrial, StatistikTrial, PengaturanTrial, MainApp }
+enum class AppScreen { Splash, Onboarding, SystemModeSelection, UserModeSelection, SenderModeTrial, ReceiverModeTrial, DefaultAppModeTrial, SpamMessagesTrial, StatistikTrial, PengaturanTrial, IsiBiodata, MainApp }
 
 @Composable
 fun MainScreen(viewModel: SmsViewModel? = null) {
@@ -98,6 +98,9 @@ fun MainScreen(viewModel: SmsViewModel? = null) {
             currentScreen = currentScreen,
             onNavigate = { currentScreen = it },
             onExitTrial = { currentScreen = AppScreen.UserModeSelection }
+        )
+        AppScreen.IsiBiodata -> IsiBiodataScreen(
+            onBack = { currentScreen = AppScreen.PengaturanTrial }
         )
         AppScreen.SenderModeTrial -> SenderModeTrialScreen(
             onExit = { currentScreen = AppScreen.Splash }, // Go back to start or whatever is appropriate
