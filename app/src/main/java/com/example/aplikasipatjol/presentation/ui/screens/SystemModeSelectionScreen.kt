@@ -18,6 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun SystemModeSelectionScreen(onModeSelected: (String) -> Unit = {}) {
@@ -32,17 +37,21 @@ fun SystemModeSelectionScreen(onModeSelected: (String) -> Unit = {}) {
         Spacer(modifier = Modifier.height(32.dp))
         
         Text(
-            text = "Pilih mode sistem",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.Black
+            text = "Pilihan mode sistem",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF1877F2),
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(48.dp))
 
         ExpandableCard(
             title = "Mode Trial",
-            description = "Lorem ipsum sit dolor amet sit amet amet",
+            description = buildAnnotatedString {
+                append("Simulasi cara kerja sistem aplikasi (sistem tetap bekerja secara real-time.)")
+            },
             isExpanded = expandedMode == "Mode Trial",
             onClick = {
                 expandedMode = if (expandedMode == "Mode Trial") null else "Mode Trial"
@@ -53,7 +62,12 @@ fun SystemModeSelectionScreen(onModeSelected: (String) -> Unit = {}) {
 
         ExpandableCard(
             title = "Set Default App",
-            description = "Lorem ipsum sit dolor amet sit amet amet",
+            description = buildAnnotatedString {
+                append("Mode aplikasi secara nyata ")
+                withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) {
+                    append("(masih dalam tahap pengembangan)")
+                }
+            },
             isExpanded = expandedMode == "Set Default App",
             onClick = {
                 expandedMode = if (expandedMode == "Set Default App") null else "Set Default App"
@@ -62,20 +76,21 @@ fun SystemModeSelectionScreen(onModeSelected: (String) -> Unit = {}) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (expandedMode != null) {
-            Button(
-                onClick = { onModeSelected(expandedMode!!) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black,
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("Pilih", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            }
+        Button(
+            onClick = { expandedMode?.let { onModeSelected(it) } },
+            enabled = expandedMode != null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF1877F2),
+                contentColor = Color.White,
+                disabledContainerColor = Color(0xFFCBD5E1),
+                disabledContentColor = Color(0xFFA6A8AC)
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Pilih mode sistem ini", fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -85,20 +100,21 @@ fun SystemModeSelectionScreen(onModeSelected: (String) -> Unit = {}) {
 @Composable
 fun ExpandableCard(
     title: String,
-    description: String,
+    description: androidx.compose.ui.text.AnnotatedString,
     isExpanded: Boolean,
     onClick: () -> Unit
 ) {
-    val backgroundColor = if (isExpanded) Color.Black else Color.White
-    val contentColor = if (isExpanded) Color.White else Color.Black
-    val icon = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
+    val backgroundColor = if (isExpanded) Color(0xFFE8F0FE) else Color.White
+    val titleColor = if (isExpanded) Color(0xFF1877F2) else Color.Black
+    val arrowText = if (isExpanded) "v" else ">"
+    val arrowColor = if (isExpanded) Color(0xFF1877F2) else Color.Black
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(backgroundColor)
-            .border(2.dp, Color.Black, RoundedCornerShape(12.dp))
+            .border(2.dp, Color(0xFF1877F2), RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .animateContentSize()
             .padding(20.dp)
@@ -112,22 +128,23 @@ fun ExpandableCard(
                 Text(
                     text = title,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = contentColor
+                    fontSize = 20.sp,
+                    color = titleColor
                 )
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = contentColor
+                Text(
+                    text = arrowText,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = arrowColor
                 )
             }
             if (isExpanded) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = description,
-                    fontSize = 14.sp,
-                    color = contentColor,
-                    lineHeight = 20.sp
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                    lineHeight = 22.sp
                 )
             }
         }

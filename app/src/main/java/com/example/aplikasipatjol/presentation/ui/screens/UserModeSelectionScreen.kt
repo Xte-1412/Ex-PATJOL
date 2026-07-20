@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun UserModeSelectionScreen(onModeSelected: (String) -> Unit = {}) {
@@ -24,17 +26,19 @@ fun UserModeSelectionScreen(onModeSelected: (String) -> Unit = {}) {
         Spacer(modifier = Modifier.height(32.dp))
         
         Text(
-            text = "Pilih mode user",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.Black
+            text = "Pilihan mode user",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF1877F2),
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(48.dp))
 
         ExpandableCard(
             title = "Penerima Pesan",
-            description = "Lorem ipsum sit dolor amet sit amet amet",
+            description = buildAnnotatedString { append("Simulasi untuk terima, deteksi, proteksi, dan lapor pesan") },
             isExpanded = expandedMode == "Penerima Pesan",
             onClick = {
                 expandedMode = if (expandedMode == "Penerima Pesan") null else "Penerima Pesan"
@@ -45,7 +49,7 @@ fun UserModeSelectionScreen(onModeSelected: (String) -> Unit = {}) {
 
         ExpandableCard(
             title = "Pengirim Pesan",
-            description = "Lorem ipsum sit dolor amet sit amet amet",
+            description = buildAnnotatedString { append("Simulasi untuk pengiriman pesan kepada penerima pesan. (hanya untuk di aplikasi saja)") },
             isExpanded = expandedMode == "Pengirim Pesan",
             onClick = {
                 expandedMode = if (expandedMode == "Pengirim Pesan") null else "Pengirim Pesan"
@@ -54,20 +58,21 @@ fun UserModeSelectionScreen(onModeSelected: (String) -> Unit = {}) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (expandedMode != null) {
-            Button(
-                onClick = { onModeSelected(expandedMode!!) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black,
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("Mulai", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            }
+        Button(
+            onClick = { expandedMode?.let { onModeSelected(it) } },
+            enabled = expandedMode != null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF1877F2),
+                contentColor = Color.White,
+                disabledContainerColor = Color(0xFFCBD5E1),
+                disabledContentColor = Color(0xFFA6A8AC)
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Mulai mode user ini", fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
         
         Spacer(modifier = Modifier.height(16.dp))
