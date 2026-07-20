@@ -60,3 +60,5 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+
+// jumat, 17 juli 2026
