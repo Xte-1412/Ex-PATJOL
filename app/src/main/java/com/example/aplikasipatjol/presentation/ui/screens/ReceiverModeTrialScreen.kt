@@ -27,6 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aplikasipatjol.domain.model.SmsMessage
 import com.example.aplikasipatjol.presentation.ui.components.SharedBottomNav
+import kotlinx.coroutines.delay
+
+enum class ReceiverFlowState { EMPTY, PERMISSION_DIALOG, LOADING, SUCCESS }
+
 @Composable
 fun ReceiverModeTrialScreen(
     currentScreen: AppScreen,
@@ -34,26 +38,278 @@ fun ReceiverModeTrialScreen(
     onNavigate: (AppScreen) -> Unit,
     onBack: () -> Unit
 ) {
+    var flowState by remember { mutableStateOf(ReceiverFlowState.EMPTY) }
     var selectedMessageId by remember { mutableStateOf<Int?>(null) }
-    val backgroundColor = Color(0xFFC0C0C0)
 
-    if (selectedMessageId == null) {
+    // Auto-transition from loading to success
+    LaunchedEffect(flowState) {
+        if (flowState == ReceiverFlowState.LOADING) {
+            delay(3000)
+            flowState = ReceiverFlowState.SUCCESS
+        }
+        if (flowState == ReceiverFlowState.SUCCESS) {
+            delay(3000)
+            // After success, navigate to message list (show messages)
+            flowState = ReceiverFlowState.EMPTY
+            selectedMessageId = -1 // Marker to show message list
+        }
+    }
+
+    val showMessageList = selectedMessageId == -1
+
+    if (showMessageList) {
+        // Show message list after successful flow
         MessageListScreen(
             messages = messages,
-            backgroundColor = backgroundColor,
+            backgroundColor = Color.White,
             onMessageClick = { selectedMessageId = it.id },
             currentScreen = currentScreen,
             onNavigate = onNavigate,
             onBack = onBack
         )
-    } else {
+    } else if (selectedMessageId != null && selectedMessageId != -1) {
         val message = messages.find { it.id == selectedMessageId }
         if (message != null) {
             MessageDetailScreen(
                 message = message,
-                backgroundColor = backgroundColor,
-                onBack = { selectedMessageId = null }
+                backgroundColor = Color.White,
+                onBack = { selectedMessageId = -1 }
             )
+        }
+    } else {
+        // Empty state + flow overlays
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
+            // Main empty state content
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 100.dp, start = 32.dp, end = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Tidak ada pesan. Pastikan anda\nmenekan tombol\n\"Simulasi Aplikasi Default SMS\"",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 28.sp
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = { flowState = ReceiverFlowState.PERMISSION_DIALOG },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1877F2),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+                ) {
+                    Text(
+                        "Simulasi Aplikasi Default SMS",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+
+            // Bottom Navigation
+            SharedBottomNav(
+                currentScreen = currentScreen,
+                onNavigate = onNavigate,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+
+            // ===== OVERLAY STATES =====
+
+            // Permission Dialog Overlay
+            if (flowState == ReceiverFlowState.PERMISSION_DIALOG) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.8f))
+                        .clickable(enabled = false) {},
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.85f)
+                            .background(Color.White, RoundedCornerShape(16.dp))
+                            .padding(28.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Berikan izin untuk\nakses pesan SMS?",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color(0xFF1877F2),
+                                textAlign = TextAlign.Center
+                            )
+
+                            Spacer(modifier = Modifier.height(20.dp))
+
+                            // Note box
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color(0xFFB4DCFF), RoundedCornerShape(12.dp))
+                                    .border(2.dp, Color(0xFF1877F2), RoundedCornerShape(12.dp))
+                                    .padding(16.dp)
+                            ) {
+                                Text(
+                                    text = "Catatan: hanya untuk simulasi saja. Mode \"Set Default SMS App\" masih dalam tahap proses pengembangan",
+                                    fontSize = 14.sp,
+                                    color = Color.Black,
+                                    lineHeight = 20.sp
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            // Buttons row
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Spacer(modifier = Modifier.weight(1f))
+
+                                OutlinedButton(
+                                    onClick = { flowState = ReceiverFlowState.EMPTY },
+                                    shape = RoundedCornerShape(8.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.Black),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black),
+                                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
+                                ) {
+                                    Text("Tidak", fontWeight = FontWeight.Medium)
+                                }
+
+                                Button(
+                                    onClick = { flowState = ReceiverFlowState.LOADING },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF1877F2),
+                                        contentColor = Color.White
+                                    ),
+                                    shape = RoundedCornerShape(8.dp),
+                                    contentPadding = PaddingValues(horizontal = 32.dp, vertical = 10.dp)
+                                ) {
+                                    Text("Ya", fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Loading Overlay
+            if (flowState == ReceiverFlowState.LOADING) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF2A2A2A))
+                        .clickable(enabled = false) {},
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(48.dp),
+                            color = Color.White,
+                            trackColor = Color.Gray,
+                            strokeWidth = 4.dp
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Text(
+                            text = "Memuat Pesan",
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    // Bottom nav still visible in loading
+                    SharedBottomNav(
+                        currentScreen = currentScreen,
+                        onNavigate = { }, // Disabled during loading
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                }
+            }
+
+            // Success Overlay
+            if (flowState == ReceiverFlowState.SUCCESS) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF2A2A2A))
+                        .clickable(enabled = false) {},
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.85f)
+                            .background(Color.White, RoundedCornerShape(16.dp))
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .background(Color(0xFF61B54F), RoundedCornerShape(8.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Success",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            Text(
+                                text = "Pemindahan Pesan Berhasil",
+                                color = Color.Black,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = "Kembali ke pesan utama dalam 3 detik",
+                                color = Color.DarkGray,
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+
+                    // Bottom nav still visible in success
+                    SharedBottomNav(
+                        currentScreen = currentScreen,
+                        onNavigate = { }, // Disabled during success
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                }
+            }
         }
     }
 }
@@ -117,7 +373,7 @@ fun MessageCard(message: SmsMessage, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(Color(0xFFF5F6F8))
             .clickable { onClick() }
             .padding(16.dp)
     ) {
@@ -126,7 +382,7 @@ fun MessageCard(message: SmsMessage, onClick: () -> Unit) {
                 imageVector = Icons.Default.AccountCircle,
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
-                tint = Color.Black
+                tint = Color(0xFF1877F2)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -144,14 +400,14 @@ fun MessageCard(message: SmsMessage, onClick: () -> Unit) {
                     Text(
                         text = message.date,
                         fontSize = 12.sp,
-                        color = Color.DarkGray
+                        color = Color(0xFFA6A8AC)
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = message.snippet,
                     fontSize = 12.sp,
-                    color = Color.DarkGray,
+                    color = Color(0xFFA6A8AC),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -164,7 +420,7 @@ fun MessageCard(message: SmsMessage, onClick: () -> Unit) {
                         text = "Selengkapnya ->",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black,
+                        color = Color(0xFF1877F2),
                         textDecoration = TextDecoration.Underline
                     )
                 }
@@ -189,7 +445,7 @@ fun MessageDetailScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 100.dp) // Space for bottom input
+                .padding(bottom = 80.dp) // Space for bottom input
         ) {
             // Top Bar
             Row(
@@ -211,7 +467,7 @@ fun MessageDetailScreen(
                     imageVector = Icons.Default.AccountCircle,
                     contentDescription = null,
                     modifier = Modifier.size(40.dp),
-                    tint = Color.Black
+                    tint = Color(0xFF1877F2)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
@@ -232,7 +488,7 @@ fun MessageDetailScreen(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White)
+                        .background(Color(0xFFF5F6F8))
                         .padding(horizontal = 16.dp, vertical = 6.dp)
                 ) {
                     Text(
@@ -255,7 +511,7 @@ fun MessageDetailScreen(
                     modifier = Modifier
                         .weight(0.85f, fill = false)
                         .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
-                        .background(Color.White)
+                        .background(Color(0xFFF5F6F8))
                         .padding(16.dp)
                 ) {
                     Column {
@@ -269,7 +525,7 @@ fun MessageDetailScreen(
                         Text(
                             text = message.time,
                             fontSize = 10.sp,
-                            color = Color.Gray,
+                            color = Color(0xFFA6A8AC),
                             modifier = Modifier.align(Alignment.End)
                         )
                     }
@@ -286,12 +542,12 @@ fun MessageDetailScreen(
                 Text(
                     text = "Terdapat kesalahan pada sistem?",
                     fontSize = 12.sp,
-                    color = Color.DarkGray
+                    color = Color(0xFFA6A8AC)
                 )
                 Text(
                     text = "Kunjungi Aju Banding Pesan",
                     fontSize = 12.sp,
-                    color = Color.Black,
+                    color = Color(0xFF1877F2),
                     textDecoration = TextDecoration.Underline
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -303,15 +559,13 @@ fun MessageDetailScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-                .background(Color.White)
-                .padding(24.dp)
+                .padding(16.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, Color.Black, RoundedCornerShape(12.dp))
-                    .padding(16.dp),
+                    .background(Color(0xFFF5F6F8), RoundedCornerShape(24.dp))
+                    .padding(start = 20.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 BasicTextField(
@@ -319,29 +573,38 @@ fun MessageDetailScreen(
                     onValueChange = { replyText = it },
                     modifier = Modifier.weight(1f),
                     textStyle = LocalTextStyle.current.copy(
-                        fontSize = 14.sp,
+                        fontSize = 16.sp,
                         color = Color.Black
                     ),
                     decorationBox = { innerTextField ->
                         if (replyText.isEmpty()) {
                             Text(
-                                text = "Ketik pesan",
-                                color = Color.Gray,
-                                fontSize = 14.sp
+                                text = "Tuliskan pesan...",
+                                color = Color(0xFFA6A8AC),
+                                fontSize = 16.sp
                             )
                         }
                         innerTextField()
                     }
                 )
                 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 
-                Icon(
-                    imageVector = Icons.Outlined.Send,
-                    contentDescription = "Send",
-                    tint = Color.Black,
-                    modifier = Modifier.size(24.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color.Black, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Send,
+                        contentDescription = "Send",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .offset(x = 2.dp, y = (-1).dp)
+                    )
+                }
             }
         }
     }

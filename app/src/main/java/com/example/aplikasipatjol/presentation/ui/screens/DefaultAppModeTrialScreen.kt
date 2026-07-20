@@ -64,7 +64,7 @@ fun DefaultAppModeTrialScreen(
         }
     }
 
-    val backgroundColor = Color(0xFFC0C0C0)
+    val backgroundColor = Color.White
 
     Box(
         modifier = Modifier

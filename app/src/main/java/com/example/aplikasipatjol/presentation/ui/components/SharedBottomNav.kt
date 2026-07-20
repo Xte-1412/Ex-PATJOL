@@ -50,7 +50,7 @@ fun SharedBottomNav(
                 .fillMaxWidth()
                 .height(72.dp)
                 .clip(RoundedCornerShape(32.dp))
-                .background(Color.Black)
+                .background(Color(0xFF003B87))
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -101,10 +101,10 @@ fun SharedBottomNav(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape)
-                    .background(Color.White),
+                    .background(Color(0xFF003B87)),
                 contentAlignment = Alignment.Center
             ) {
-                DeteksiPesanIcon(tint = Color.Black, modifier = Modifier.size(32.dp))
+                DeteksiPesanIcon(tint = Color.White, modifier = Modifier.size(32.dp))
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -126,7 +126,7 @@ fun NavItem(
     onClick: () -> Unit,
     icon: @Composable (Color) -> Unit
 ) {
-    val color = if (isActive) Color.White else Color.Gray
+    val color = if (isActive) Color(0xFFB4DCFF) else Color.White
     val weight = if (isActive) FontWeight.Bold else FontWeight.Normal
 
     Column(
