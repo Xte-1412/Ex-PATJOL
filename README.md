@@ -2,41 +2,53 @@
 
 **PATJOL** adalah aplikasi Android inovatif yang dirancang untuk memberikan perlindungan kepada pengguna dari pesan-pesan singkat (SMS) yang mengandung unsur Judi Online (Judol), Pinjaman Online Ilegal (Pinjol), serta konten *phishing* atau *malware*. Aplikasi ini mengintegrasikan teknologi *Machine Learning/AI* untuk mendeteksi, melabeli, dan menyaring pesan secara otomatis.
 
-## 📱 Fitur Utama (UI/UX)
-Saat ini, proyek berada pada tahap pengembangan antarmuka (UI/UX) menggunakan **Jetpack Compose**. Beberapa alur fitur yang telah dikembangkan antara lain:
+Repositori ini secara khusus disiapkan dan dikelola untuk keperluan **Software Development Competition**.
 
-*   **Onboarding & Splash Screen**: Pengenalan aplikasi dengan desain yang bersih dan responsif.
-*   **Pemilihan Mode Sistem**:
-    *   **Mode Trial**: Simulasi penggunaan aplikasi untuk menguji fitur deteksi tanpa harus mengubah pengaturan sistem.
-    *   **Mode Set Default App**: Mode penuh di mana aplikasi bertindak sebagai aplikasi SMS utama (*Default SMS Handler*) untuk memfilter pesan secara otomatis.
-*   **Pemilihan Mode Pengguna**: Memisahkan peran antara Pengirim Pesan dan Penerima Pesan (Fokus utama pada Penerima Pesan).
-*   **Kotak Masuk (Inbox) SMS**: Antarmuka daftar pesan masuk yang modern dengan *Custom Bottom Navigation*.
-*   **Simulasi Deteksi & Filter (Scanning Flow)**: Animasi dan alur kerja aplikasi saat melakukan pemindaian pesan (*scanning*), pelabelan, hingga menyembunyikan pesan spam dari kotak masuk utama.
-*   **Kotak Penampungan Spam (Pesan Waspada/Judol)**: 
-    *   Area khusus (karantina) untuk pesan yang terdeteksi sebagai Judol/Pinjol.
-    *   Dilengkapi dengan sistem peringatan keamanan ganda (Sensor Link).
-    *   Fitur edukasi interaktif (*Tooltips*) yang menjelaskan alasan pelabelan pesan.
-    *   Fitur **Aju Banding**, memungkinkan pengguna melaporkan kesalahan deteksi oleh sistem.
+## 📖 Deskripsi Aplikasi
+Aplikasi PATJOL bertujuan untuk memfilter kotak masuk SMS pengguna dari pesan-pesan berbahaya. Dengan bertindak sebagai aplikasi SMS bawaan (*Default SMS Handler*), PATJOL dapat mencegat SMS yang masuk, memproses teksnya menggunakan kecerdasan buatan secara lokal di perangkat, dan mengkarantina pesan yang terdeteksi sebagai ancaman ke dalam kotak "Pesan Waspada". Hal ini memastikan kotak masuk utama pengguna tetap bersih, aman, dan meminimalisir risiko penipuan.
 
-## 🛠️ Tech Stack
+## 🛠️ Teknologi yang Digunakan
+Proyek ini mengadopsi standar pengembangan Android modern (*best practices*):
 *   **Bahasa Pemrograman**: Kotlin
-*   **UI Toolkit**: Jetpack Compose
-*   **Arsitektur**: MVVM / MVI (Tahap Perencanaan)
-*   **Machine Learning/AI**: Integrasi deteksi teks dan klasifikasi pola spam (Akan Dikerjakan oleh Tim ML/Backend)
-*   **Backend / API**: Pengiriman log dan sinkronisasi data *blacklist* (Akan Dikerjakan oleh Tim Backend)
+*   **UI Toolkit**: Jetpack Compose (Material Design 3)
+*   **Arsitektur Kode**: *Clean Architecture* (pemisahan *Domain, Data,* dan *Presentation layer*) dipadukan dengan pola **MVVM** (*Model-View-ViewModel*)
+*   **Asynchronous Programming**: Kotlin Coroutines & StateFlow
+*   **Machine Learning**: TensorFlow Lite (TFLite) untuk pemrosesan teks lokal (*On-Device ML*)
+*   **Version Control**: Git & GitHub (dengan riwayat *commit* bertahap)
 
-## 🚀 Cara Menjalankan Proyek
-1. *Clone* atau unduh *repository* ini.
-2. Buka proyek menggunakan **Android Studio** (Disarankan versi terbaru yang mendukung Jetpack Compose).
-3. Tunggu hingga proses *Gradle Sync* selesai.
-4. Hubungkan perangkat Android (fisik) atau jalankan Emulator.
-5. Tekan tombol **Run** (`Shift + F10`) untuk melihat dan menguji *flow* UI yang telah dibuat.
+## 🚀 Cara Instalasi
+1. Pastikan komputer Anda telah terinstal **Android Studio** versi terbaru (minimal versi yang mendukung lingkungan *Jetpack Compose* modern).
+2. Lakukan *clone* repositori ini ke dalam direktori lokal Anda:
+   ```bash
+   git clone https://github.com/muhammadariefand/aplikasi-patjol.git
+   ```
+3. Buka proyek melalui Android Studio (`File -> Open` dan pilih folder proyek hasil *clone*).
+4. Tunggu beberapa saat hingga proses Sinkronisasi Gradle (*Gradle Sync*) selesai secara otomatis.
+5. Siapkan perangkat Android fisik (aktifkan *USB Debugging*) atau jalankan emulator (*Android Virtual Device*).
+6. Tekan tombol **Run** (ikon segitiga hijau) atau `Shift + F10` untuk melakukan *build* dan menjalankan aplikasi.
 
-## 🤝 Kolaborasi Tim
-Proyek ini dikembangkan secara kolaboratif:
-*   **Frontend (Android/UI)**: Pengembangan alur aplikasi, navigasi, dan antarmuka interaktif menggunakan Jetpack Compose (Saat ini sedang berjalan).
-*   **Backend**: Persiapan *server*, *database* terpusat, dan API.
-*   **AI / Machine Learning**: Pengembangan algoritma deteksi teks (*Natural Language Processing*) untuk mengidentifikasi *keyword* dan *link* berbahaya.
+## 📱 Cara Penggunaan
+1. **Layar Onboarding**: Saat aplikasi dibuka, ikuti panduan layar pengenalan.
+2. **Pemilihan Mode (Uji Coba vs Default)**:
+   - Pilih **Mode Uji Coba (Trial)** untuk menyimulasikan fitur antarmuka tanpa perlu mengubah pengaturan sistem operasi perangkat.
+   - Pilih **Jadikan Aplikasi Utama** (saat nanti terintegrasi penuh) agar sistem dapat melakukan intersepsi SMS secara nyata.
+3. **Navigasi Utama (Bottom Nav)**:
+   - **Pesan Utama**: Melihat daftar pesan masuk yang dikategorikan aman.
+   - **Pesan Waspada**: Area karantina pesan terindikasi spam/judol. Di sini Anda bisa melihat alasan pelabelan spam dan peringatan tautan berbahaya.
+   - **Statistik**: Memantau grafik visual perbandingan jenis pesan dan informasi "Waktu Rawan" masuknya pesan spam.
+   - **Pengaturan**: Untuk melakukan penyesuaian profil, mengisi biodata akun, dan memberikan laporan (*feedback*).
 
----
-*Dokumentasi ini akan terus diperbarui seiring dengan berjalannya proses pengembangan (Integrasi Backend & AI).*
+## 📂 Struktur Folder
+Proyek ini dikelola dengan sangat rapi menggunakan pedoman **Clean Architecture** demi menjaga skalabilitas kode:
+```text
+app/src/main/java/com/example/aplikasipatjol/
+├── data/           # Layer Data: Implementasi Repository, DataSource, dan modul SmsReceiver
+├── domain/         # Layer Domain: Logika bisnis inti, UseCases, dan Data Models
+└── presentation/   # Layer Presentasi: 
+    ├── ui/         # Komponen Antarmuka Jetpack Compose (screens, components)
+    └── viewmodel/  # Manajemen State & UI Logic (SmsViewModel)
+```
+*Catatan Tambahan: Terdapat folder `assets/` di direktori `src/main/` yang dialokasikan sebagai tempat penyimpanan model klasifikasi TFLite.*
+
+## 📜 Pernyataan Kepemilikan & Lisensi
+Repository ini dirancang, ditulis, dan dibangun secara orisinal (bukan hasil *fork* pihak ketiga) oleh tim pengembang aplikasi **PATJOL** secara spesifik untuk dikompetisikan pada ajang lomba. Segala hak cipta terkait baris kode (*source code*), rancangan arsitektur, dan aset UI yang ada di dalam repositori ini merupakan hak milik intelektual tim (All Rights Reserved). Pihak panitia memiliki hak akses penuh untuk melakukan peninjauan dan penilaian komprehensif. Dilarang keras melakukan plagiarisme terhadap karya ini.
