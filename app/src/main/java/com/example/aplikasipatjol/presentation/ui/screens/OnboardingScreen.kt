@@ -11,9 +11,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
@@ -173,7 +171,6 @@ fun SplashScreen() {
 data class OnboardingPage(
     val titleNumber: String,
     val titleText: String,
-    val titleIcon: ImageVector,
     val description: String
 )
 
@@ -184,20 +181,17 @@ fun OnboardingScreen(onFinish: () -> Unit = {}) {
         OnboardingPage(
             titleNumber = "1",
             titleText = "Deteksi",
-            titleIcon = Icons.Default.Search,
-            description = "Jelasin fitur pertama kita seperti apa ya pokoknya begitulah ya"
+            description = "Sistem mendeteksi pesan judi online secara akurat."
         ),
         OnboardingPage(
             titleNumber = "2",
             titleText = "Proteksi",
-            titleIcon = Icons.Default.Lock,
-            description = "Jelasin fitur kedua kita seperti apa ya pokoknya begitulah ya"
+            description = "Sensor tautan yang diberikan oleh pesan judol."
         ),
         OnboardingPage(
             titleNumber = "3",
             titleText = "Lapor",
-            titleIcon = Icons.Default.Info,
-            description = "Jelasin fitur ketiga kita seperti apa ya pokoknya begitulah ya"
+            description = "Cetak laporan nomor judol kepada aduannomor.id"
         )
     )
 
@@ -225,45 +219,53 @@ fun OnboardingScreen(onFinish: () -> Unit = {}) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Indicators
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 repeat(pages.size) { index ->
                     val isActive = pagerState.currentPage == index
                     Box(
                         modifier = Modifier
-                            .size(14.dp)
+                            .size(16.dp)
                             .clip(CircleShape)
-                            .background(if (isActive) Color.Black else Color.Transparent)
-                            .border(2.dp, Color.Black, CircleShape)
+                            .background(if (isActive) Color(0xFF1877F2) else Color.White)
+                            .border(2.dp, Color(0xFF1877F2), CircleShape)
                     )
                 }
             }
 
             // Next / Mulai button
             if (pagerState.currentPage == pages.size - 1) {
-                Button(
+                OutlinedButton(
                     onClick = onFinish,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
-                        contentColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(2.dp, Color(0xFF1877F2)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF1877F2)),
                     contentPadding = PaddingValues(horizontal = 32.dp, vertical = 12.dp)
                 ) {
-                    Text("Mulai", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("Mulai", fontWeight = FontWeight.Medium, fontSize = 16.sp)
                 }
             } else {
-                OutlinedButton(
+                Button(
                     onClick = {
                         coroutineScope.launch {
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         }
                     },
-                    shape = RoundedCornerShape(24.dp),
-                    border = BorderStroke(2.dp, Color.Black),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1877F2),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
                 ) {
-                    Text("Next ->", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Lanjut", fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }
@@ -287,33 +289,24 @@ fun OnboardingPageContent(page: OnboardingPage) {
                 text = page.titleNumber,
                 fontSize = 120.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.Black,
+                color = Color(0xFF1877F2),
                 modifier = Modifier.offset(y = (-24).dp) // Adjust baseline alignment
             )
-            Spacer(modifier = Modifier.width(24.dp))
+            Spacer(modifier = Modifier.width(20.dp))
             Column(
                 modifier = Modifier.padding(top = 16.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = page.titleText,
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        imageVector = page.titleIcon,
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp),
-                        tint = Color.Black
-                    )
-                }
+                Text(
+                    text = page.titleText,
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF1877F2)
+                )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = page.description,
                     fontSize = 16.sp,
-                    color = Color.DarkGray,
+                    color = Color.Black,
                     textAlign = TextAlign.Start,
                     lineHeight = 24.sp
                 )
