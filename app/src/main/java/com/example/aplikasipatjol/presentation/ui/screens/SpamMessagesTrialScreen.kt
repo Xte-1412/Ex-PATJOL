@@ -31,6 +31,7 @@ import kotlinx.coroutines.delay
 
 enum class WaspadaTab { MENCURIGAKAN, JUDI_ONLINE }
 enum class WaspadaScreenState { LIST, DETAIL }
+enum class LaporanFlowState { HIDDEN, CONFIRMATION, LOADING, SUCCESS, PDF_VIEW }
 
 @Composable
 fun SpamMessagesTrialScreen(
@@ -43,6 +44,23 @@ fun SpamMessagesTrialScreen(
     var screenState by remember { mutableStateOf(WaspadaScreenState.LIST) }
     var selectedMessage by remember { mutableStateOf<SmsMessage?>(null) }
     var searchQuery by remember { mutableStateOf("") }
+    
+    // Laporan PDF State
+    var isSelectionMode by remember { mutableStateOf(false) }
+    var selectedMessagesForReport by remember { mutableStateOf(setOf<SmsMessage>()) }
+    var laporanState by remember { mutableStateOf(LaporanFlowState.HIDDEN) }
+
+    LaunchedEffect(laporanState) {
+        if (laporanState == LaporanFlowState.LOADING) {
+            delay(2000)
+            laporanState = LaporanFlowState.SUCCESS
+        } else if (laporanState == LaporanFlowState.SUCCESS) {
+            delay(3000)
+            laporanState = LaporanFlowState.PDF_VIEW
+            isSelectionMode = false
+            selectedMessagesForReport = setOf()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -100,63 +118,102 @@ fun SpamMessagesTrialScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Search Bar and Action Button
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Search Bar
+                if (isSelectionMode) {
                     Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .height(36.dp)
-                            .background(Color(0xFFE5E5E5), RoundedCornerShape(18.dp))
+                            .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        BasicTextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            textStyle = LocalTextStyle.current.copy(color = Color.Black, fontSize = 12.sp),
-                            modifier = Modifier.weight(1f),
-                            decorationBox = { innerTextField ->
-                                if (searchQuery.isEmpty()) {
-                                    Text("Cari pesan...", color = Color(0xFFA6A8AC), fontSize = 12.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                "x", 
+                                modifier = Modifier
+                                    .clickable { 
+                                        isSelectionMode = false 
+                                        selectedMessagesForReport = setOf()
+                                    }
+                                    .padding(end = 16.dp), 
+                                fontSize = 16.sp, 
+                                color = Color.Black
+                            )
+                            Text("${selectedMessagesForReport.size} Pesan dipilih", color = Color.Black, fontSize = 14.sp)
+                        }
+                        
+                        Box(
+                            modifier = Modifier
+                                .border(1.dp, Color.Black, RoundedCornerShape(16.dp))
+                                .background(Color(0xFFE5E5E5), RoundedCornerShape(16.dp))
+                                .clickable { 
+                                    if (selectedMessagesForReport.isNotEmpty()) {
+                                        laporanState = LaporanFlowState.CONFIRMATION 
+                                    }
                                 }
-                                innerTextField()
-                            }
-                        )
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
-                            modifier = Modifier.size(18.dp),
-                            tint = Color.Black
-                        )
+                                .padding(horizontal = 16.dp, vertical = 6.dp)
+                        ) {
+                            Text("Buat Laporan PDF", color = Color.Black, fontSize = 12.sp)
+                        }
                     }
-
-                    if (selectedTab == WaspadaTab.JUDI_ONLINE) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        // Laporkan Pesan button
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Search Bar
                         Row(
                             modifier = Modifier
+                                .weight(1f)
                                 .height(36.dp)
                                 .background(Color(0xFFE5E5E5), RoundedCornerShape(18.dp))
-                                .padding(horizontal = 12.dp)
-                                .clickable { /* Action here */ },
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Box(
+                            BasicTextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                textStyle = LocalTextStyle.current.copy(color = Color.Black, fontSize = 12.sp),
+                                modifier = Modifier.weight(1f),
+                                decorationBox = { innerTextField ->
+                                    if (searchQuery.isEmpty()) {
+                                        Text("Cari pesan...", color = Color(0xFFA6A8AC), fontSize = 12.sp)
+                                    }
+                                    innerTextField()
+                                }
+                            )
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search",
+                                modifier = Modifier.size(18.dp),
+                                tint = Color.Black
+                            )
+                        }
+
+                        if (selectedTab == WaspadaTab.JUDI_ONLINE) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            // Laporkan Pesan button
+                            Row(
                                 modifier = Modifier
-                                    .size(16.dp)
-                                    .background(Color.Black, RoundedCornerShape(4.dp)),
-                                contentAlignment = Alignment.Center
+                                    .height(36.dp)
+                                    .background(Color(0xFFE5E5E5), RoundedCornerShape(18.dp))
+                                    .padding(horizontal = 12.dp)
+                                    .clickable { isSelectionMode = true },
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("!", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 10.sp)
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .background(Color.Black, RoundedCornerShape(4.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("!", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 10.sp)
+                                }
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Laporkan Pesan", color = Color.Black, fontSize = 12.sp)
                             }
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Laporkan Pesan", color = Color.Black, fontSize = 12.sp)
                         }
                     }
                 }
@@ -164,19 +221,42 @@ fun SpamMessagesTrialScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // List of messages
+                val displayedMessages = messages.filter { message ->
+                    val matchesTab = if (selectedTab == WaspadaTab.MENCURIGAKAN) {
+                        message.category == com.example.aplikasipatjol.domain.model.MessageCategory.SPAM || 
+                        message.category == com.example.aplikasipatjol.domain.model.MessageCategory.PINJOL
+                    } else {
+                        message.category == com.example.aplikasipatjol.domain.model.MessageCategory.JUDOL
+                    }
+                    val matchesSearch = message.sender.contains(searchQuery, ignoreCase = true) || 
+                                        message.snippet.contains(searchQuery, ignoreCase = true) ||
+                                        message.fullBody.contains(searchQuery, ignoreCase = true)
+                    matchesTab && matchesSearch
+                }
+
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
                         .padding(bottom = 90.dp) // padding for bottom nav
                 ) {
-                    items(messages) { message ->
+                    items(displayedMessages) { message ->
                         WaspadaMessageCard(
                             message = message,
                             tabType = selectedTab,
+                            isSelectionMode = isSelectionMode,
+                            isSelected = selectedMessagesForReport.contains(message),
                             onClick = {
-                                selectedMessage = message
-                                screenState = WaspadaScreenState.DETAIL
+                                if (isSelectionMode) {
+                                    selectedMessagesForReport = if (selectedMessagesForReport.contains(message)) {
+                                        selectedMessagesForReport - message
+                                    } else {
+                                        selectedMessagesForReport + message
+                                    }
+                                } else {
+                                    selectedMessage = message
+                                    screenState = WaspadaScreenState.DETAIL
+                                }
                             }
                         )
                     }
@@ -199,6 +279,230 @@ fun SpamMessagesTrialScreen(
                 )
             }
         }
+        
+        // ===== LAPORAN PDF OVERLAYS =====
+        if (laporanState == LaporanFlowState.CONFIRMATION) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.8f))
+                    .clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .background(Color.White, RoundedCornerShape(16.dp))
+                        .padding(24.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "Cetak Laporan Nomor\nuntuk aduannomor.id?",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color(0xFFC0C0C0), RoundedCornerShape(8.dp))
+                                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                                .clickable { laporanState = LaporanFlowState.LOADING }
+                                .padding(vertical = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Ya, cetak laporan Nomor PDF sekarang.", color = Color.Black, fontSize = 14.sp)
+                        }
+                    }
+                }
+            }
+        }
+
+        if (laporanState == LaporanFlowState.LOADING) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.8f))
+                    .clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(64.dp), strokeWidth = 6.dp)
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = "Membuat laporan\nnomor PDF",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+
+        if (laporanState == LaporanFlowState.SUCCESS) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.8f))
+                    .clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .background(Color(0xFFE5E5E5), RoundedCornerShape(16.dp)),
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 40.dp, bottom = 32.dp, start = 24.dp, end = 24.dp)
+                    ) {
+                        Text(
+                            text = "Pencetakan Laporan\nNomor Berhasil",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Mengarah ke pesan\nwaspada dalam 3 detik",
+                            fontSize = 14.sp,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+                
+                Box(
+                    modifier = Modifier
+                        .offset(y = (-90).dp)
+                        .size(64.dp)
+                        .background(Color.White, RoundedCornerShape(8.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Success",
+                        tint = Color.Black,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+            }
+        }
+
+        if (laporanState == LaporanFlowState.PDF_VIEW) {
+            // PDF VIEW Mockup
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(40.dp))
+                    
+                    // Close button
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
+                        Icon(
+                            imageVector = Icons.Default.Close, 
+                            contentDescription = "Close PDF", 
+                            tint = Color.Black,
+                            modifier = Modifier.size(24.dp).clickable { laporanState = LaporanFlowState.HIDDEN }
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    // Logo PATJOL Mock
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier.size(48.dp).border(2.dp, Color.Black).padding(4.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("PATJOL", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text("PATJOL", fontWeight = FontWeight.ExtraBold, fontSize = 24.sp, color = Color.Black)
+                            Text("Pesan Aman Tanpa Judi Online", fontSize = 10.sp, color = Color.Black)
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    Text(
+                        text = "Bukti Laporan\nPesan Judi Online",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    // Box containing details
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, Color.Black)
+                            .padding(16.dp)
+                    ) {
+                        Column {
+                            Box(modifier = Modifier.border(1.dp, Color.Black, RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 8.dp)) {
+                                Text("Nomor HP: +6281234567890", fontSize = 14.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Box(modifier = Modifier.border(1.dp, Color.Black, RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 8.dp)) {
+                                Text("Waktu kejadian: 10 Juli 2026, 10:10 PM", fontSize = 14.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Box(modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black, RoundedCornerShape(8.dp)).padding(12.dp)) {
+                                Column {
+                                    Text("Isi pesan:", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.Black)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "NOMOR KAMU DPT SALDO 25K UTK MALAM INI!\nDFTR & KLAIM SKRG!\nPUTER 15X DI INCES ID BARU 100% PASTI WD\nPAS WD AKU KASI BONUS 50K LG!\nDISINI : gerak.in/tLgTDH",
+                                        fontSize = 12.sp,
+                                        color = Color.Black,
+                                        lineHeight = 16.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "Catatan:\n1. Dokumen ini sebagai bukti kuat adanya pesan judi\n   online yang masuk kepada pengguna SMS.\n2. Dokumen digunakan sebagai pendukung laporan\n   kepada aduannomor.id",
+                            fontSize = 10.sp,
+                            color = Color.Black,
+                            lineHeight = 14.sp
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.weight(1f))
+                    
+                    Column(horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth()) {
+                        Text("Tanggal Cetak Laporan", fontSize = 10.sp, color = Color.Black)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("10 Juli 2026", fontSize = 10.sp, color = Color.Black)
+                    }
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
+            }
+        }
     }
 }
 
@@ -206,11 +510,14 @@ fun SpamMessagesTrialScreen(
 fun WaspadaMessageCard(
     message: SmsMessage,
     tabType: WaspadaTab,
+    isSelectionMode: Boolean = false,
+    isSelected: Boolean = false,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(if (isSelectionMode && isSelected) Color(0xFFC0C0C0) else Color.White)
             .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically

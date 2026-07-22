@@ -15,13 +15,21 @@ class MockSmsRepositoryImpl : SmsRepository {
     init {
         // Initialize with some mock data mimicking what was in the UI
         val initialData = listOf(
-            SmsMessage(id = 1, sender = "Telkomsel", date = "02 Juni 2025", snippet = "PROMO!!, Kuota malam hari cocok buat nonton vtuber sampe ...", fullBody = "PROMO!!, Kuota tak terbatas malam hari cocok buat nonton vtuber sampe subuh. CUMA 5K untuk mendapatkan kuota tak terbatas.\n\nHubungi 911.", time = "10:00 PM", category = MessageCategory.SAFE),
-            SmsMessage(id = 2, sender = "+62123456789", date = "02 Juni 2025", snippet = "Pilih CITI 5i- O75, Terpercaya dan g@j! p0k0k area ter b4ik...", fullBody = "Pilih CITI 5i- O75, Terpercaya dan g@j! p0k0k area ter b4ik...\n\nKlik link ini: bit.ly/spam", time = "11:00 AM", category = MessageCategory.SPAM),
-            SmsMessage(id = 3, sender = "JasaPinjol", date = "02 Juni 2025", snippet = "100 Juta Rupiah Bisa Untuk Apa Saja! Cairkan Pinjamanmu...", fullBody = "100 Juta Rupiah Bisa Untuk Apa Saja! Cairkan Pinjamanmu sekarang juga tanpa syarat rumit.", time = "09:30 AM", category = MessageCategory.PINJOL),
-            SmsMessage(id = 4, sender = "Telkomsel", date = "02 Juni 2025", snippet = "PROMO!!, Kuota pagi hari cocok buat dengerin channel rohani...", fullBody = "PROMO!!, Kuota pagi hari...", time = "08:15 AM", category = MessageCategory.SAFE),
-            SmsMessage(id = 5, sender = "+62987654321", date = "02 Juni 2025", snippet = "Depo 10k jadikan 100M! Gacor parah slot terbaru...", fullBody = "Depo 10k jadikan 100M! Gacor parah slot terbaru...", time = "07:00 AM", category = MessageCategory.JUDOL)
+            SmsMessage(id = 1, sender = "Telkomsel", date = "07/07/2026", snippet = "PROMO!!, Kuota malam hari cocok buat nonton vtuber sampe ...", fullBody = "PROMO!!, Kuota tak terbatas malam hari cocok buat nonton vtuber sampe subuh. CUMA 5K untuk mendapatkan kuota tak terbatas.\n\nHubungi 911.", time = "10:00 PM", category = MessageCategory.SAFE),
+            
+            // Pesan Mencurigakan (PINJOL/SPAM)
+            SmsMessage(id = 2, sender = "JasaPinjol", date = "07/07/2026", snippet = "Cari Uang Tambahan?! Cek Jumlah Limit Pinjamanmu. Daftar RupiahCepat disini...", fullBody = "Cari Uang Tambahan?! Cek Jumlah Limit Pinjamanmu. Daftar RupiahCepat disini...", time = "09:30 AM", category = MessageCategory.PINJOL),
+            SmsMessage(id = 3, sender = "+628******2", date = "07/07/2026", snippet = "SELAMAT! 100 Juta langsung cair! RupiahCepat Limit Besar Untuk bisnis...", fullBody = "SELAMAT! 100 Juta langsung cair! RupiahCepat Limit Besar Untuk bisnis...", time = "10:10 PM", category = MessageCategory.SPAM),
+            
+            // Pesan Judi Online (JUDOL)
+            SmsMessage(id = 4, sender = "+628******1", date = "07/07/2026", snippet = "(Isi pesan tidak ditampilkan oleh sistem. Klik Pesan untuk selengkapnya)", fullBody = "AKU KSH KM SA_LDO 100K UTK MA_IN ID BA'RU 100% P'AS'TI DIKASIH MENANG SISTEM PG'SO_FT BAGI2 MA,XWI'N MA_IN MAHJ_ONG 5 MENIT WD 2 JT DP&KL,AIM SKRG: ****************", time = "10:10 PM", category = MessageCategory.JUDOL)
         )
-        allMessages.value = initialData
+        
+        val safeMessages = initialData.filter { it.category == MessageCategory.SAFE }
+        val detectedSpam = initialData.filter { it.category != MessageCategory.SAFE }
+        
+        allMessages.value = safeMessages
+        spamMessages.value = detectedSpam
     }
 
     override fun getInboxMessages(): Flow<List<SmsMessage>> {
